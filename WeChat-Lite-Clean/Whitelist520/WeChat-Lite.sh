@@ -31,9 +31,12 @@ esac
 echo "息屏且微信不在前台，开始清理后台进程……"
 
 ##########################################################################
-# 3. 找出微信子进程（排除 push 服务）
+# 3. 找出微信子进程
+#    只匹配带冒号后缀的（com.tencent.mm:xxx），主进程
+#    com.tencent.mm 天然不会被匹配；再排除 push 服务。
+#    保留：主进程 + push | 清理：其他所有子进程
 ##########################################################################
-pids="$(ps -ef | grep -E 'com\.tencent\.mm$|com\.tencent\.mm:' | \
+pids="$(ps -ef | grep -E 'com\.tencent\.mm:' | \
   grep -v push | grep -v grep | awk '{print $2}')"
 
 if [ -z "$pids" ]; then
@@ -41,7 +44,7 @@ if [ -z "$pids" ]; then
   exit 0
 fi
 
-echo "  发现 $pids 个进程"
+echo "  发现进程：$pids"
 
 ##########################################################################
 # 4. 批量处理：全部 -15 → 等 2 秒 → 查存活 → 补 -9
@@ -71,4 +74,4 @@ for pid in $pids; do
 done
 
 echo "清理完成"
-[ -n "$survivors" ] && echo "  (有 $survivors 个进程是被强制终止的)"
+[ -n "$survivors" ] && echo "  (被强制终止的进程：$survivors)"

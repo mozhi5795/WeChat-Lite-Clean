@@ -34,6 +34,8 @@ logger "模块启动，开始监控微信后台……"
 #
 # 说明：
 #   - 用 case 替代 [[ ]] 以兼容 BusyBox sh
+#   - 只匹配带冒号后缀的子进程，主进程 com.tencent.mm 天然不匹配；
+#     再排除 push 服务。保留：主进程 + push | 清理：其他所有子进程
 #   - PID 回收重用概率极低（sleep 2 窗口期极短），不额外处理
 #   - 如需排查运行情况，查看 $MODDIR/clean.log
 ##########################################################################
@@ -51,8 +53,9 @@ while true; do
     *com.tencent.mm*) continue ;;
   esac
 
-  # 找出微信子进程（排除 push 服务）
-  pids="$(ps -ef | grep -E 'com\.tencent\.mm$|com\.tencent\.mm:' | \
+  # 找出微信子进程（只匹配带冒号后缀的，主进程天然不匹配；再排除 push）
+  # 保留：主进程 + push | 清理：其他所有子进程
+  pids="$(ps -ef | grep -E 'com\.tencent\.mm:' | \
     grep -v push | grep -v grep | awk '{print $2}')"
   [ -z "$pids" ] && continue
 
