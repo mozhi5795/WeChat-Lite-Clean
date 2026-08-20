@@ -1,0 +1,6 @@
+id=WeChat-Lite-Clean
+name=WeChat-Lite 纯净版
+version=v1.0
+versionCode=1
+author=clean-rewrite
+description=息屏时自动清理微信多余后台进程，仅保留主进程与 Push 服务，减少无用后台占用，温和省电。
